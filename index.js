@@ -27,7 +27,10 @@ app.get("/", function (request, response) {
     ADMIN:"0",
     NORMAL_USER:"1",
   };
-
+  app.get("/movies",async(request,response)=>{
+    const movies=await client.db("hacathon").collection("movies").find({}).toArray();
+    response.send(movies)
+  })
   app.post("/signup", async (request, response) => {
     const {username,password} = request.body;
     // console.log(data);
