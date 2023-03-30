@@ -5,7 +5,7 @@ import { auth } from './auth.js';
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 import cors from "cors";
-// import { ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 
 dotenv.config();
 const app=express();
@@ -30,6 +30,39 @@ app.get("/", function (request, response) {
   app.get("/movies",async(request,response)=>{
     const movies=await client.db("hacathon").collection("movies").find({}).toArray();
     response.send(movies)
+  })
+  app.get("/movies/:id", async (request, response) => {
+    const { id } = request.params;
+    const movie = await getMovieById(id)
+    console.log(movie)
+    movie ? response.send(movie) : response.send({ message: "MOVIE NOT FOUND" });
+  });
+  app.post("/movies",async(request,response)=>{
+    const data=request.body;
+    const result=await client.db("hacathon").collection("movies").insertMany(data)
+    response.send(result)
+  })
+  app.delete("/movies/:id",auth,async(request,response)=>{
+    const id=request.params;
+    const {roleId}=request;
+    // console.log(roleId)
+    // console.log(id)
+    if(roleId==ROLE_ID.ADMIN &&request.params){
+      request.params=+request.params;
+    const movies=await client.db("hacathon").collection("movies").deleteOne({_id:new ObjectId(id)});
+    movies.deletedCount> 0 ?response.send({message:"Mobile deleted sucessfully"}):response.send({message:"Mobile not found"});
+    console.log(id) 
+  } 
+    else{
+       
+      response.status(401).send({message:`Unauthorized`})
+      
+    }
+  })
+  app.post("/movies/:id",async(request,response)=>{
+    const data=request.body;
+    const result=await client.db("hacathon").collection("movies").insertMany(data)
+    response.send(result)
   })
   app.post("/signup", async (request, response) => {
     const {username,password} = request.body;
@@ -91,17 +124,17 @@ app.get("/", function (request, response) {
   return hashpassword;
   }
   export async function createUser(data) {
-    return await client.db("test").collection('members').insertOne(data);
+    return await client.db("hacathon").collection('users').insertOne(data);
 }
 export async function getUserByName(username) {
-    return await client.db("test").collection("members").findOne({username:username});
+    return await client.db("hacathon").collection("users").findOne({username:username});
 }
 export async function getMovieById(id) {
     console.log(id);
     return await client
-      .db("test")
-      .collection("members")
-      .findOne({ id:id});
+      .db("hacathon")
+      .collection("movies")
+      .findOne({ _id:new ObjectId(id)});
   }
 
   
