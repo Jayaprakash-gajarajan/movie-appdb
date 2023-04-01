@@ -124,10 +124,10 @@ app.get("/", function (request, response) {
   return hashpassword;
   }
   export async function createUser(data) {
-    return await client.db("hacathon").collection('users').insertOne(data);
+    return await client.db("hacathon").collection('datas').insertOne(data);
 }
 export async function getUserByName(username) {
-    return await client.db("hacathon").collection("users").findOne({username:username});
+    return await client.db("hacathon").collection("datas").findOne({username:username});
 }
 export async function getMovieById(id) {
     console.log(id);
